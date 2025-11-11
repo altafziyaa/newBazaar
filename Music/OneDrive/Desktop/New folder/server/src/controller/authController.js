@@ -3,20 +3,33 @@ import AuthService from "../service/AuthService.js";
 const authService = new AuthService();
 
 class AuthController {
-  static async sendSignInOtp(req, res) {
+  async sendSignInOtp(req, res) {
     try {
-      const { email } = req.body; 
+      const { email } = req.body;
       await authService.sendSignInOtp(email);
-
-      return res.status(200).json({ 
-        message: "OTP sent successfully" 
-      });
+      return res.status(200).json({ message: "OTP sent successfully" });
     } catch (error) {
-      return res.status(400).json({ 
-        error: error.message 
-      });
+      return res.status(400).json({ error: error.message });
+    }
+  }
+
+  async createUser(req, res) {
+    try {
+      const token = await authService.createUser(req, res);
+      return res.status(201).json({ message: "User created", token });
+    } catch (error) {
+      return res.status(400).json({ message: error.message });
+    }
+  }
+
+  async signIn(req, res) {
+    try {
+      const data = await authService.signIn(req, res);
+      return res.status(200).json(data);
+    } catch (error) {
+      return res.status(400).json({ error: error.message });
     }
   }
 }
 
-export default AuthController;
+export default new AuthController(); // ✅ IMPORTANT

@@ -1,11 +1,7 @@
-// UserRole.js
-
-const UserRole = {
-    ADMIN: 'ROLE_ADMIN',
-    CUSTOMER: 'ROLE_CUSTOMER',
-    SELLER: 'ROLE_SELLER',
+const UserRoles = {
+  ROLE_ADMIN: "ADMIN",
+  ROLE_CUSTOMER: "CUSTOMER",
+  ROLE_SELLER: "SELLER"
 };
 
-Object.freeze(UserRole);
-
-export default UserRole;
+export default UserRoles;

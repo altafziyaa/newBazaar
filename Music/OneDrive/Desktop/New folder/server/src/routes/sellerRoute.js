@@ -1,28 +1,18 @@
 // routes/sellerRoutes.js
 import express from 'express';
 import SellerController from '../controller/SellerController.js';
+import sellerAuthMiddleware from '../middleware/sellerAuthMiddleware.js';
 
 const router = express.Router();
+router.post('/', SellerController.createSeller); // ✅ Public
+router.post('/login/verify-otp', SellerController.verifyLoginOtp); // ✅ Public
 
-// Seller profile (auth token required in header)
-router.get('/profile', SellerController.getSellerProfile);
+router.get('/profile', sellerAuthMiddleware, SellerController.getSellerProfile); // ✅ Protected
 
-// Create new seller
-router.post('/', SellerController.createSeller);
+router.get('/', sellerAuthMiddleware, SellerController.getAllSellers); // ✅ Protected
+router.put('/:id', sellerAuthMiddleware, SellerController.updateSeller); // ✅ Protected
+router.patch('/:id/status', sellerAuthMiddleware, SellerController.updateSellerAccStatus); // ✅ Protected
+router.delete('/:id', sellerAuthMiddleware, SellerController.deleteSeller); // ✅ Protected
 
-// Get all sellers (optional status query param)
-router.get('/', SellerController.getAllSellers);
-
-// Update seller by ID
-router.put('/:id', SellerController.updateSeller);
-
-// Update seller account status by ID
-router.patch('/:id/status', SellerController.updateSellerAccStatus);
-
-// Delete seller by ID
-router.delete('/:id', SellerController.deleteSeller);
-
-// Verify login OTP
-router.post('/login/verify-otp', SellerController.verifyLoginOtp);
 
 export default router;
