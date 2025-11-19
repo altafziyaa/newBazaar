@@ -3,7 +3,7 @@ import VerificationCode from "../model/VerificationCode.js";
 import sendVerificationEmail from "../utils/sendEmail.js";
 import { generateOTP } from "../utils/generateOtp.js";
 import User from "../model/User.js";
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 import Cart from "../model/cart.js";
 import jwtProvider from "../utils/jwtProvider.js";
 
@@ -29,38 +29,46 @@ class AuthService {
     );
   }
 
-  async createUser({ email, fullName, password }) {
+  async createUser({ name, email, mobile, password }) {
+
     const existingUser = await User.findOne({ email }).lean();
     if (existingUser) throw new Error("User already exists");
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    const user = await new User({ email, fullName, password: hashedPassword }).save();
+    const user = await new User({
+        name,
+        email,
+        mobile,
+        password: hashedPassword
+    }).save();
 
     await new Cart({ user: user._id }).save();
 
     return jwtProvider.createJwt({ email: user.email });
+}
+
+
+async signIn({ email, password, otp }) {
+
+  const user = await User.findOne({ email });
+  if (!user) throw new Error("Invalid email or password");
+
+  const isMatch = await bcrypt.compare(password, user.password);
+  if (!isMatch) throw new Error("Invalid email or password");
+
+  const verificationCode = await VerificationCode.findOne({ email });
+  if (!verificationCode || verificationCode.otp !== otp) {
+    throw new Error("Invalid OTP");
   }
 
-  async signIn({ email, password, otp }) {
+  return {
+    message: "Login success",
+    jwt: jwtProvider.createJwt({ email }),
+    role: user.role
+  };
+}
 
-    const user = await User.findOne({ email });
-    if (!user) throw new Error("Invalid email or password");
-
-    const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) throw new Error("Invalid email or password");
-
-    const verificationCode = await VerificationCode.findOne({ email });
-    if (!verificationCode || verificationCode.otp !== otp) {
-      throw new Error("Invalid OTP");
-    }
-
-    return {
-      message: "Login success",
-      jwt: jwtProvider.createJwt({ email }),
-      role: user.role
-    };
-  }
 }
 
 export default AuthService;

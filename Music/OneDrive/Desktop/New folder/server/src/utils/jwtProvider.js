@@ -4,32 +4,36 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 class JWTProvider {
-   constructor(secretKey) {
+  constructor(secretKey) {
     this.secretKey = secretKey || process.env.JWT_SECRET;
-   }
+  }
 
-   createJwt(payload, expiresIn = '1h') {
+  // Token create karne ka method
+  createJwt(payload, expiresIn = '1h') {
     return jwt.sign(payload, this.secretKey, { expiresIn });
-   }
-   getEmailFromJwt(token) {
+  }
+
+  // Token verify karne ka method
+  verifyJwt(token) {
     try {
-        const decoded = jwt.verify(token, this.secretKey);
-        return decoded.email;
+      return jwt.verify(token, this.secretKey);
     } catch (error) {
-        console.error('Invalid token', error);
-        return null;
+      console.error("Invalid token", error);
+      return null;
     }
-}
+  }
 
-verifyJwt(token) {
+  // Email directly token se nikalne ka method (name same as before)
+  getEmailFromJwt(token) {
     try {
-        return jwt.verify(token, this.secretKey);
+      const decoded = jwt.verify(token, this.secretKey);
+      return decoded?.email || null;
     } catch (error) {
-        console.error('Invalid token', error);
-        return null;
+      console.error("Invalid token", error);
+      return null;
     }
-
+  }
 }
-}
 
-export default new JWTProvider(process.env.JWT_SECRET||'defaultSecretKey');
+// Export singleton instance
+export default new JWTProvider(process.env.JWT_SECRET || "defaultSecretKey");

@@ -1,34 +1,38 @@
+// src/service/SellerService.js
 import AccountStatus from '../domain/AccountStatus.js';
 import Seller from '../model/Seller.js';
 import Address from '../model/Address.js';
 import jwtProvider from '../utils/jwtProvider.js';
 
-
-
 class SellerService {
-  // Define service methods here
   async createSeller(sellerData) {
-    // Logic to create a seller
-    const existingSeller = await Seller.findOne({ email: sellerData.email });
-    if (existingSeller) {
+    // check email and mobile duplicates
+    const existingEmail = await Seller.findOne({ email: sellerData.email });
+    if (existingEmail) {
       const error = new Error("Email already registered");
-      error.statusCode = 400; // Bad Request
+      error.statusCode = 400;
       throw error;
     }
-      
-    const savedAddress = await Address.create(sellerData.pickupAddress);
+    const existingMobile = await Seller.findOne({ mobile: sellerData.mobile });
+    if (existingMobile) {
+      const error = new Error("Mobile already registered");
+      error.statusCode = 400;
+      throw error;
+    }
 
-    const newSeller= new Seller({
-      sellerName:sellerData.sellerName,
-      email:sellerData.email,
-      password:sellerData.password,
-      pickupAddress: savedAddress._id, 
-      GSTIN:sellerData.GSTIN,
-      mobile:sellerData.mobile,
-      bankDetails:sellerData.bankDetails,
-      businessDetails:sellerData.businessDetails
-    })
-    
+    const savedAddress = sellerData.pickupAddress ? await Address.create(sellerData.pickupAddress) : null;
+
+    const newSeller = new Seller({
+      sellerName: sellerData.sellerName,
+      email: sellerData.email,
+      password: sellerData.password,
+      pickupAddress: savedAddress ? savedAddress._id : undefined,
+      GSTIN: sellerData.GSTIN,
+      mobile: sellerData.mobile,
+      bankDetails: sellerData.bankDetails,
+      businessDetails: sellerData.businessDetails
+    });
+
     const savedSeller = await newSeller.save();
     return await savedSeller.populate("pickupAddress");
   }
@@ -40,9 +44,7 @@ class SellerService {
       error.statusCode = 401;
       throw error;
     }
-
-    const seller = await this.getSellerByEmail(email);
-    return seller;
+    return this.getSellerByEmail(email);
   }
 
   async getSellerByEmail(email) {
@@ -66,17 +68,13 @@ class SellerService {
   }
 
   async getAllSellers(status) {
-    // filter based on query param
     const filter = status ? { accountStatus: status.toUpperCase() } : {};
-
     const sellers = await Seller.find(filter).populate("pickupAddress");
-
     if (!sellers || sellers.length === 0) {
       const error = new Error("No sellers found");
       error.statusCode = 404;
       throw error;
     }
-
     return sellers;
   }
 
@@ -87,36 +85,22 @@ class SellerService {
       error.statusCode = 404;
       throw error;
     }
-
-    // Optional: prevent email or role from being updated directly
     if (updatedData.email || updatedData.role) {
       delete updatedData.email;
       delete updatedData.role;
     }
-
     const updatedSeller = await Seller.findByIdAndUpdate(
       sellerId,
       { ...updatedData, updatedAt: Date.now() },
       { new: true, runValidators: true }
     );
-
     return updatedSeller;
   }
 
   async updateSellerStatus(sellerId, status) {
-    if (!sellerId) {
-      const err = new Error("Seller ID is required");
-      err.statusCode = 400;
-      throw err;
-    }
+    if (!sellerId) throw Object.assign(new Error("Seller ID is required"), { statusCode: 400 });
+    if (!status) throw Object.assign(new Error("Account status is required"), { statusCode: 400 });
 
-    if (!status) {
-      const err = new Error("Account status is required");
-      err.statusCode = 400;
-      throw err;
-    }
-
-    // Ensure the provided status is valid (from AccountStatus enum)
     const validStatuses = Object.values(AccountStatus);
     if (!validStatuses.includes(status)) {
       const err = new Error(`Invalid status. Allowed values are: ${validStatuses.join(", ")}`);
@@ -124,7 +108,6 @@ class SellerService {
       throw err;
     }
 
-    // Check if seller exists
     const existingSeller = await Seller.findById(sellerId);
     if (!existingSeller) {
       const err = new Error("Seller not found");
@@ -132,7 +115,6 @@ class SellerService {
       throw err;
     }
 
-    // Update account status (use correct field name: accountStatus)
     const updatedSeller = await Seller.findByIdAndUpdate(
       sellerId,
       { $set: { accountStatus: status } },
@@ -148,16 +130,15 @@ class SellerService {
       error.statusCode = 400;
       throw error;
     }
-
     const existingSeller = await Seller.findById(sellerId);
     if (!existingSeller) {
       const error = new Error("Seller not found");
       error.statusCode = 404;
       throw error;
     }
-
     const deletedSeller = await Seller.findByIdAndDelete(sellerId);
     return deletedSeller;
   }
 }
+
 export default new SellerService();

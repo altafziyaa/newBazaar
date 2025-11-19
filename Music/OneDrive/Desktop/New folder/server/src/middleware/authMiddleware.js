@@ -1,11 +1,10 @@
 import jwtProvider from "../utils/jwtProvider.js";
-import SellerService from "../service/SellerService.js";
 import userService from "../service/userService.js";
 
 const authMiddleware = async (req, res, next) => {
     try {
      const authHeader=req.headers.authorization;
-     if (!authHeader || !authHeader.startsWith('Bearer ')) {
+     if (!authHeader || !authHeader.startsWith('Bearer')) {
          return res.status(401).json({ message: 'No token provided' });
      }
         const token = authHeader.split(' ')[1];
