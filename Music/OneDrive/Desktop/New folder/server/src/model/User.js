@@ -23,9 +23,9 @@ const userSchema = new mongoose.Schema({
         ref: 'Address'
     },
     role: {
-        type: String,                           // ✅ Type defined
-        enum: [UserRoles.CUSTOMER, UserRoles.ADMIN], // ✅ Allowed values
-        default: UserRoles.CUSTOMER             // ✅ Default value
+        type: String,
+        enum: [UserRoles.CUSTOMER, UserRoles.ADMIN],
+        default: UserRoles.CUSTOMER 
     }
 });
 

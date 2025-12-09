@@ -27,6 +27,7 @@ class AuthService {
       "Your Login OTP",
       `<p>Your OTP is: <b>${otp}</b> (valid for 10 minutes)</p>`
     );
+    console.log(otp); // For testing purposes
   }
 
   async createUser({ name, email, mobile, password }) {
@@ -47,7 +48,6 @@ class AuthService {
 
     return jwtProvider.createJwt({ email: user.email });
 }
-
 
 async signIn({ email, password, otp }) {
 

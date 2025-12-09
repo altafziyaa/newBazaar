@@ -1,23 +1,15 @@
 import mongoose, { Schema } from "mongoose";
 
-const categorySchema = new Schema(
-  {
-    name: { 
-      type: String, 
-      required: true, 
-      trim: true,
-      unique: true // Ensure uniqueness
-    },
-    categoryId: { type: String, default: null },
-    parentcategory: {
-      type: Schema.Types.ObjectId,
-      ref: "Category",
-      default: null,
-    },
-    level: { type: Number, required: true }
+const categorySchema = new Schema({
+  name: { type: String, required: true, trim: true, unique: true, index: true },
+  categoryId: { type: String, default: null },
+  parentCategory: { // ✅ Fixed naming
+    type: Schema.Types.ObjectId,
+    ref: "Category",
+    default: null,
   },
-  { timestamps: true }
-);
+  level: { type: Number, required: true, min: 0 }
+}, { timestamps: true });
 
-const Category = mongoose.model("Category", categorySchema);
-export default Category;
+categorySchema.index({ parentCategory: 1 });
+export default mongoose.model("Category", categorySchema);

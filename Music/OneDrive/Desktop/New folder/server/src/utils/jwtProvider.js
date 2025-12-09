@@ -9,7 +9,7 @@ class JWTProvider {
   }
 
   // Token create karne ka method
-  createJwt(payload, expiresIn = '1h') {
+  createJwt(payload, expiresIn = '1d') {
     return jwt.sign(payload, this.secretKey, { expiresIn });
   }
 

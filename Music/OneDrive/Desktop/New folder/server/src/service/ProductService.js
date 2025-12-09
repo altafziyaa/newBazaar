@@ -1,6 +1,5 @@
 import Product from "../model/Product.js";
 import Category from "../model/Category.js";
-
 class ProductService {
   // Pricing calculation
  async calculatePricing(mrpPrice, discountPercentage) {
@@ -9,8 +8,6 @@ class ProductService {
     const sellingPrice = Math.round(mrpPrice * (1 - discountPercentage / 100));
     return { sellingPrice, discountPercentage };
 }
-
-
   // Create or get category
 async createOrGetCategory(categoryId, level, parentId = null, name) {
     if (!name) throw new Error("Category name is required");
@@ -20,9 +17,6 @@ async createOrGetCategory(categoryId, level, parentId = null, name) {
 
     return Category.findOneAndUpdate(filter, update, { new: true, upsert: true });
 }
-
-
-
   // Pagination helper
 async _paginate(query, { page = 1, limit = 10, populate = "" }) {
     const skip = (page - 1) * limit;
@@ -32,8 +26,6 @@ async _paginate(query, { page = 1, limit = 10, populate = "" }) {
     ]);
     return { products, total, page, limit };
 }
-
-
   // --- CRUD ---
 async createProduct(data) {
     const { title, description, primaryImages, mrpPrice, discountPercentage, variations, sellerId, category1, category2, category3 } = data;
@@ -63,7 +55,6 @@ async createProduct(data) {
     });
 }
 
-
 async updateProduct(productId, updates, sellerId) {
     const product = await Product.findOneAndUpdate(
         { _id: productId, seller: sellerId },
@@ -82,7 +73,6 @@ async deleteProduct(productId, sellerId) {
     return product;
 }
 
-
   async findProductById(productId) {
     const product = await Product.findById(productId)
       .populate("category", "categoryId")
@@ -90,7 +80,6 @@ async deleteProduct(productId, sellerId) {
     if (!product) throw new Error("Product not found");
     return product;
   }
-
   // --- Search & Pagination ---
   async searchProduct({ query, category, minPrice, maxPrice, limit = 10, page = 1 }) {
     const filter = { isAvailable: true };

@@ -5,7 +5,7 @@ import sellerAuthMiddleware from '../middleware/sellerAuthMiddleware.js';
 
 const router = express.Router();
 
-router.post('/', SellerController.createSeller); 
+router.post('/create', SellerController.createSeller); 
 // register
 router.post('/login', SellerController.loginSeller); 
 // send OTP after verifying credentials

@@ -1,73 +1,55 @@
 // controller/CartController.js
-import cartService from "../service/cartService.js"; // Instance import
+import cartService from "../service/cartService.js";
 
 class CartController {
-  
-  createUserCart = async (req, res) => {
+  _user(req) {
+    if (!req.user?._id) throw new Error("Unauthorized");
+    return req.user._id;
+  }
+
+  async findUserCartHandle(req, res) {
     try {
-      const user = req.user;
-      if (!user) return res.status(401).json({ message: "Unauthorized" });
-
-      const cart = await cartService.getOrCreateUserCart(user._id);
-
-      res.status(200).json({ message: "User cart fetched successfully", cart });
-    } catch (error) {
-      res.status(500).json({ message: error.message });
-    }
-  };
-
-  addItemToCart = async (req, res) => {
-    try {
-      const userId = req.user?._id;
-      const { cartId, productId, size, quantity } = req.body;
-
-      if (!userId) return res.status(401).json({ message: "Unauthorized" });
-
-      const item = await cartService.addItem({
-        userId,
-        cartId,
-        productId,
-        size,
-        quantity,
-      });
-
-      res.status(201).json({ message: "Item added successfully", item });
+      const userId = this._user(req);
+      const cart = await cartService.getUserCart(userId);
+      res.status(200).json({ message: "Cart fetched", data: cart });
     } catch (error) {
       res.status(400).json({ message: error.message });
     }
-  };
+  }
 
-  getUserCart = async (req, res) => {
+  async addItemToCart(req, res) {
     try {
-      const user = req.user;
-      if (!user) return res.status(401).json({ message: "Unauthorized" });
+      const userId = this._user(req);
+      const { productId, size } = req.body;
 
-      const cart = await cartService.findUSerCart(user);
+      if (!productId) throw new Error("Product ID is required");
 
-      res.status(200).json({ message: "Cart fetched successfully", cart });
+      const item = await cartService.addItem({ userId, productId, size });
+
+      res.status(201).json({ message: "Item added", data: item });
     } catch (error) {
-      res.status(404).json({ message: error.message });
+      res.status(400).json({ message: error.message });
     }
-  };
+  }
 
-  removeItem = async (req, res) => {
+  async removeItem(req, res) {
     try {
+      const userId = this._user(req);
       const { cartItemId } = req.params;
-      const userId = req.user?._id;
 
-      const removed = await cartService.removeItem(cartItemId, userId);
+      await cartService.removeItem(cartItemId, userId);
 
-      res.status(200).json({ message: "Item removed successfully", removed });
+      res.status(200).json({ message: "Item removed" });
     } catch (error) {
       res.status(400).json({ message: error.message });
     }
-  };
+  }
 
-  updateQuantity = async (req, res) => {
+  async updateQuantity(req, res) {
     try {
+      const userId = this._user(req);
       const { cartItemId } = req.params;
       const { quantity } = req.body;
-      const userId = req.user?._id;
 
       const updated = await cartService.updateItemQuantity(
         cartItemId,
@@ -75,12 +57,11 @@ class CartController {
         quantity
       );
 
-      res.status(200).json({ message: "Quantity updated successfully", updated });
+      res.status(200).json({ message: "Quantity updated", data: updated });
     } catch (error) {
       res.status(400).json({ message: error.message });
     }
-  };
+  }
 }
 
-// ✔ Final export (Correct way)
 export default new CartController();
