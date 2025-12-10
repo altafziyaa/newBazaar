@@ -13,6 +13,7 @@ import paymentOrderRoutes from './routes/paymentOrderRoutes.js'
 import transactionRoute from './routes/TransactionRoute.js';
 import sellerReportRoute from './routes/sellerReportRoute.js';
 import errorMiddleware from "./middleware/errorMiddleware.js";
+import DealRoutes from './routes/DealsRoutes.js'
 
 dotenv.config();
 dbConnect();
@@ -30,6 +31,7 @@ app.use("/api/orders", orderRoutes);
 app.use("/api/payment",paymentOrderRoutes);
 app.use("/api/transaction",transactionRoute);
 app.use("/api/seller/report",sellerReportRoute);
+app.use("/api/deals",DealRoutes);
 
 app.use(errorMiddleware);
 
