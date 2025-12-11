@@ -5,7 +5,7 @@ const router = express.Router();
 
 router.get('/', DealController.getAlldeals);
 router.post('/', DealController.createDeals);
-router.put('/:id', DealController.updateDeal);
-router.delete('/:id', DealController.deleteDeal);
+router.put('/update/:id', DealController.updateDeal);
+router.delete('/delete/:id', DealController.deleteDeal);
 
 export default router;

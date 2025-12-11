@@ -1,9 +1,8 @@
-const HomeCategorySection = {
-    ELECTRIC_CATEGORIES: 'Electric_Categories',
-    GRID: 'Grid',
-    SHOP_BY_CATEGORIES: 'Shop_By_Categories',
-    DEAL:'deal'
+export const HomeCategorySection = {
+    GRID: "GRID",
+    SHOP_BY_CATEGORIES: "SHOP_BY_CATEGORIES",
+    ELECTRIC_CATEGORIES: "ELECTRIC_CATEGORIES",
+    DEAL: "DEAL",
 };
 
-Object.freeze(HomeCategorySection)
 export default HomeCategorySection;
